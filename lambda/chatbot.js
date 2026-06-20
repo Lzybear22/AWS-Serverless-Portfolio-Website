@@ -1,9 +1,9 @@
-const AWS = require("aws-sdk");
-const ses = new AWS.SES({ region: "us-west-2" });
+const { SNSClient, PublishCommand } = require('@aws-sdk/client-sns');
+const sns = new SNSClient({ region: 'us-east-1' });
 
 exports.handler = async (event) => {
 
-    // Handle OPTIONS request (CORS)
+    // Handle preflight OPTIONS request (CORS)
     if (event.httpMethod === "OPTIONS") {
         return { statusCode: 204, headers: { "Content-Type": "application/json" } };
     }
@@ -35,7 +35,7 @@ Here are some commands you can try:
 - 'contact me' → Send a message via email
 `;
     } else if (msg.includes("resume")) {
-        reply = "You can view my resume at: https://.com/resume.pdf";
+        reply = "You can view my resume at: https://yourdomain.com/resume.pdf";
     } else if (msg.includes("skills")) {
         reply = "I work with AWS, Terraform, Python, DynamoDB, Lambda, API Gateway, S3, CloudFront, JavaScript";
     } else if (msg.includes("projects")) {
