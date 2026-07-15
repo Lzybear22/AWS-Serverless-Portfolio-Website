@@ -1,5 +1,6 @@
+# Lambda execution role
 resource "aws_iam_role" "lambda_exec" {
-  name = "chatbot-lambda-role"
+  name = "${var.project_name}-chatbot-lambda-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -13,6 +14,8 @@ resource "aws_iam_role" "lambda_exec" {
       }
     ]
   })
+
+  tags = local.common_tags
 }
 
 # Attach basic execution policy (CloudWatch logs)
@@ -23,13 +26,14 @@ resource "aws_iam_role_policy_attachment" "lambda_logs" {
 
 # Lambda function
 resource "aws_lambda_function" "chatbot" {
-  function_name = "chatbot_function"
-  role          = aws_iam_role.lambda_exec.arn
-  handler       = "chatbot.handler"
-  runtime       = "nodejs20.x"
-  filename      = "../lambda/chatbot.zip"
-  memory_size   = 128
-  timeout       = 10
+  function_name    = "${var.project_name}-chatbot-function"
+  role            = aws_iam_role.lambda_exec.arn
+  handler         = "chatbot.handler"
+  runtime         = "nodejs20.x"
+  filename        = "../lambda/chatbot.zip"
+  source_code_hash = filebase64sha256("../lambda/chatbot.zip")
+  memory_size     = 128
+  timeout         = 10
 
   environment {
     variables = {
@@ -38,14 +42,12 @@ resource "aws_lambda_function" "chatbot" {
     }
   }
 
-  tags = {
-    Name        = "chatbot_function"
-    Environment = "production"
-  }
+  tags = merge(local.common_tags, {
+    Name = "chatbot-function"
+  })
 
   depends_on = [aws_iam_role.lambda_exec]
 }
-
 resource "aws_iam_role" "visitor_lambda_exec" {
   name = "visitor-counter-lambda-role"
 
@@ -190,7 +192,7 @@ resource "aws_api_gateway_integration_response" "visitor_options_integration_res
   response_parameters = {
     "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
     "method.response.header.Access-Control-Allow-Methods" = "'GET,OPTIONS'"
-    "method.response.header.Access-Control-Allow-Origin"  = "'*'"
+    "method.response.header.Access-Control-Allow-Origin"  = "'https://hunterulrich.io'"
   }
 }
 
