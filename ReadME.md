@@ -87,7 +87,6 @@ Through this project, I gained hands-on experience with:
 
 Some things I may add in the future:
 
-* GitHub Actions CI/CD
 * More cloud projects
 * Improved monitoring and logging
 * Additional infrastructure automation
